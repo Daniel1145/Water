@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -23,9 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
     public static final String EXTRA_PLANT = "com.example.water.PLANT";
-    public static final String PREF_ID = "com.example.water.PREF_ID";
-
-    SharedPreferences myPrefs;
+    public static final String POSITION = "com.example.water.POSITION";
 
     ArrayList<Plant> plants;
     PlantsAdapter adapter;
@@ -35,8 +34,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        myPrefs = getSharedPreferences(PREF_ID, Context.MODE_PRIVATE);
 
         getPrefs();
         if (plants == null) plants = new ArrayList<>();
@@ -52,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
         // Lookup the recyclerview in activity layout
         rvPlants = findViewById(R.id.rvPlants);
         // Create adapter passing in the sample user data
-        adapter = new PlantsAdapter(plants);
+        adapter = new PlantsAdapter(plants, this);
         // Attach the adapter to the recyclerview to populate items
         rvPlants.setAdapter(adapter);
         // Set layout manager to position the items
@@ -69,20 +66,27 @@ public class MainActivity extends AppCompatActivity {
 
             plants.add(0, plant);
 
-            SharedPreferences.Editor prefsEditor = myPrefs.edit();
             Gson gson = new Gson();
             String jsonPlants = gson.toJson(plants);
-            prefsEditor.putString("Plants", jsonPlants);
-            prefsEditor.commit();
+            setDefaults("Plants", jsonPlants, this);
 
-            adapter.notifyItemInserted(0);
+            adapter.notifyDataSetChanged();
             rvPlants.scrollToPosition(0);
+        } else if (requestCode == 2 && resultCode == RESULT_OK && data != null) {
+            Plant p = data.getParcelableExtra(EXTRA_PLANT);
+            int position = data.getIntExtra(POSITION, 0);
+            if (p != null) {
+                plants.set(position, p);
+                adapter.notifyItemChanged(position);
+            } else {
+                plants.remove(position);
+                adapter.notifyDataSetChanged();
+            }
         }
     }
 
     @Override
     protected void onStop() {
-        SharedPreferences.Editor prefsEditor = myPrefs.edit();
         Gson gson = new Gson();
 
         String jsonPlants = gson.toJson(plants);
@@ -90,18 +94,19 @@ public class MainActivity extends AppCompatActivity {
         Date date = Calendar.getInstance().getTime();
         String jsonDate = gson.toJson(date);
 
-        prefsEditor.putString("Plants", jsonPlants);
-        prefsEditor.putString("Date", jsonDate);
-        prefsEditor.commit();
+        setDefaults("Plants", jsonPlants,this);
+        setDefaults("Date", jsonDate, this);
         super.onStop();
     }
 
     private void getPrefs() {
         Gson gson = new Gson();
-        String jsonPlants = myPrefs.getString("Plants", "");
+        String jsonPlants = getDefaults("Plants", this);
         plants = gson.fromJson(jsonPlants, new TypeToken<List<Plant>>(){}.getType());
 
-        String jsonDate = myPrefs.getString("Date", "");
+
+
+        String jsonDate = getDefaults("Date", this);
         Date lastDate = gson.fromJson(jsonDate, Date.class);
 
         Date currDate = Calendar.getInstance().getTime();
@@ -113,5 +118,17 @@ public class MainActivity extends AppCompatActivity {
                 p.setDaysUntilWater(p.getDaysUntilWater()-daysPast);
             }
         }
+    }
+
+    public static void setDefaults(String key, String value, Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(key, value);
+        editor.apply();
+    }
+
+    public static String getDefaults(String key, Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return preferences.getString(key, null);
     }
 }

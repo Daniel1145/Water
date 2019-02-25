@@ -11,21 +11,24 @@ public class Plant implements Parcelable {
     private int mWaterSchedule;
     private int daysUntilWater;
 
-    public Plant(String name, int waterSchedule) {
+    Plant(String name, String species, int waterSchedule) {
         mName = name;
+        mSpecies = species;
         mWaterSchedule = waterSchedule;
-        daysUntilWater = waterSchedule + 1;
+        daysUntilWater = waterSchedule;
     }
 
-    public String getName() {
+    String getName() {
         return mName;
     }
 
-    public int getWaterSchedule(){
+    String getSpecies() {return mSpecies;}
+
+    int getWaterSchedule(){
         return mWaterSchedule;
     }
 
-    public int getDaysUntilWater() { return daysUntilWater;}
+    int getDaysUntilWater() { return daysUntilWater;}
 
     public void setName(String name) {mName = name;}
 

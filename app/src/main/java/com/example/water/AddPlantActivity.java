@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class AddPlantActivity extends AppCompatActivity {
 
@@ -16,21 +17,26 @@ public class AddPlantActivity extends AppCompatActivity {
     }
 
     public void onClick(View view){
-        EditText nameEditText = findViewById(R.id.new_plant_name);
-        String name = nameEditText.getText().toString();
-
         EditText waterScheduleEditText = findViewById(R.id.new_plant_water_schedule);
         String temp = waterScheduleEditText.getText().toString();
+        if (temp.matches("") || temp.matches("0")){
+            Toast.makeText(this, "Please enter the plant's watering schedule", Toast.LENGTH_SHORT).show();
+        } else {
+            int waterSchedule = Integer.parseInt(temp);
 
-        EditText speciesEditText = findViewById(R.id.new_plant_species);
-        String species = speciesEditText.getText().toString();
+            EditText nameEditText = findViewById(R.id.new_plant_name);
+            String name = nameEditText.getText().toString();
 
-        int waterSchedule = Integer.parseInt(temp);
-        Plant plant = new Plant(name, species, waterSchedule);
+            EditText speciesEditText = findViewById(R.id.new_plant_species);
+            String species = speciesEditText.getText().toString();
 
-        Intent output = new Intent();
-        output.putExtra(MainActivity.EXTRA_PLANT, plant);
-        setResult(RESULT_OK, output);
-        finish();
+
+            Plant plant = new Plant(name, species, waterSchedule);
+
+            Intent output = new Intent();
+            output.putExtra(MainActivity.EXTRA_PLANT, plant);
+            setResult(RESULT_OK, output);
+            finish();
+        }
     }
 }

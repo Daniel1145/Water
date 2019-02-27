@@ -10,17 +10,18 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import static java.lang.Math.ceil;
+
 public class PlantsAdapter extends RecyclerView.Adapter<PlantsAdapter.ViewHolder> {
 
     private OnItemClickListener listener;
     public interface OnItemClickListener {
-        void OnItemClick(View itemView);
+        void OnItemClick(View itemView, int position);
     }
 
     private void setOnItemClickListener(OnItemClickListener listener) {
@@ -52,7 +53,9 @@ public class PlantsAdapter extends RecyclerView.Adapter<PlantsAdapter.ViewHolder
                 @Override
                 public void onClick(View v) {
                     if (listener != null) {
-                        listener.OnItemClick(itemView);
+                        int position = getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION)
+                            listener.OnItemClick(itemView, position);
                     }
                 }
             });
@@ -98,11 +101,11 @@ public class PlantsAdapter extends RecyclerView.Adapter<PlantsAdapter.ViewHolder
 
             CountDownTimer cdt = viewHolder.myCounter;
             if (cdt == null) {
-                cdt = new CountDownTimer(plant.getDaysUntilWater()*1000L, 1000L) {
+                cdt = new CountDownTimer(plant.getDaysUntilWater()*86400000L, 86400000L) {
                     @Override
                     public void onTick(long millisUntilFinished) {
-                        plant.setDaysUntilWater((int)(millisUntilFinished/1000));
-                        button.setText(Integer.toString((int)(millisUntilFinished/1000)));
+                        plant.setDaysUntilWater((int) ceil(millisUntilFinished/86400000.0));
+                        button.setText(Integer.toString((int) ceil(millisUntilFinished/86400000.0)));
                     }
 
                     @Override
@@ -116,7 +119,7 @@ public class PlantsAdapter extends RecyclerView.Adapter<PlantsAdapter.ViewHolder
 
                 setOnItemClickListener(new PlantsAdapter.OnItemClickListener() {
                     @Override
-                    public void OnItemClick(View itemView) {
+                    public void OnItemClick(View itemView, int position) {
                         finalCdt.cancel();
                         Plant p = mPlants.get(position);
                         Intent intent = new Intent(context, ChangePlantActivity.class);

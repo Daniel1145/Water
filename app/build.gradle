@@ -35,4 +35,10 @@ dependencies {
 
     //GSON
     implementation 'com.google.code.gson:gson:2.8.5'
+
+    //Joda Time
+    implementation group: 'joda-time', name: 'joda-time', version: '2.10.1'
+
+    // GSON Joda Time Serializer
+    implementation 'com.fatboyindustrial.gson-jodatime-serialisers:gson-jodatime-serialisers:1.6.0'
 }

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -13,14 +12,16 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
+import com.fatboyindustrial.gsonjodatime.Converters;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
+import org.joda.time.Days;
+import org.joda.time.LocalDate;
+
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
     public static final String EXTRA_PLANT = "com.example.water.PLANT";
@@ -85,34 +86,38 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // Saves the current state of the app and the current date before closing
     @Override
     protected void onStop() {
         Gson gson = new Gson();
+        Gson dateGson = Converters.registerLocalDate(new GsonBuilder()).create();
 
         String jsonPlants = gson.toJson(plants);
 
-        Date date = Calendar.getInstance().getTime();
-        String jsonDate = gson.toJson(date);
+        LocalDate date = LocalDate.now();
+        String jsonDate = dateGson.toJson(date);
 
         setDefaults("Plants", jsonPlants,this);
         setDefaults("Date", jsonDate, this);
         super.onStop();
     }
 
+    // Upon launching the app, loads the saved state of the app and
+    // subtracts the number of days passed from each plant watering schedule
     private void getPrefs() {
         Gson gson = new Gson();
+        Gson dateGson = Converters.registerLocalDate(new GsonBuilder()).create();
+
         String jsonPlants = getDefaults("Plants", this);
         plants = gson.fromJson(jsonPlants, new TypeToken<List<Plant>>(){}.getType());
 
-
-
         String jsonDate = getDefaults("Date", this);
-        Date lastDate = gson.fromJson(jsonDate, Date.class);
+        LocalDate lastDate = dateGson.fromJson(jsonDate, LocalDate.class);
 
-        Date currDate = Calendar.getInstance().getTime();
+        LocalDate currDate = LocalDate.now();
 
         if (lastDate != null) {
-            int daysPast = (int) TimeUnit.MILLISECONDS.toDays(currDate.getTime() - lastDate.getTime());
+            int daysPast = Days.daysBetween(lastDate, currDate).getDays();
 
             for (Plant p:plants) {
                 p.setDaysUntilWater(p.getDaysUntilWater()-daysPast);
@@ -120,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // Stores a string into shared preferences
     public static void setDefaults(String key, String value, Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = preferences.edit();
@@ -127,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
         editor.apply();
     }
 
+    // Gets a string from shared preferences
     public static String getDefaults(String key, Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         return preferences.getString(key, null);

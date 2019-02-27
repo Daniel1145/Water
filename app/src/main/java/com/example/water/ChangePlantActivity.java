@@ -30,23 +30,28 @@ public class ChangePlantActivity extends AppCompatActivity {
     public void onClick(View view){
         EditText waterScheduleEditText = findViewById(R.id.new_plant_water_schedule);
         String temp = waterScheduleEditText.getText().toString();
-        if (temp.matches("") || temp.matches("0")){
+        if (temp.matches("")){
             Toast.makeText(this, "Please enter the plant's watering schedule", Toast.LENGTH_SHORT).show();
         } else {
-            EditText nameEditText = findViewById(R.id.new_plant_name);
-            String name = nameEditText.getText().toString();
-
-            EditText speciesEditText = findViewById(R.id.new_plant_species);
-            String species = speciesEditText.getText().toString();
-
             int waterSchedule = Integer.parseInt(temp);
-            Plant plant = new Plant(name, species, waterSchedule);
+            if (waterSchedule <= 0) {
+                Toast.makeText(this, "The plant's watering schedule must be at least 1 day", Toast.LENGTH_SHORT).show();
+            } else {
+                EditText nameEditText = findViewById(R.id.new_plant_name);
+                String name = nameEditText.getText().toString();
 
-            Intent output = new Intent();
-            output.putExtra(MainActivity.EXTRA_PLANT, plant);
-            output.putExtra(MainActivity.POSITION, position);
-            setResult(RESULT_OK, output);
-            finish();
+                EditText speciesEditText = findViewById(R.id.new_plant_species);
+                String species = speciesEditText.getText().toString();
+
+
+                Plant plant = new Plant(name, species, waterSchedule);
+
+                Intent output = new Intent();
+                output.putExtra(MainActivity.EXTRA_PLANT, plant);
+                output.putExtra(MainActivity.POSITION, position);
+                setResult(RESULT_OK, output);
+                finish();
+            }
         }
     }
 

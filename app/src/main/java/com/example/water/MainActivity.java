@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -20,12 +21,14 @@ import com.google.gson.reflect.TypeToken;
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     public static final String EXTRA_PLANT = "com.example.water.PLANT";
     public static final String POSITION = "com.example.water.POSITION";
+    public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 1;
 
     ArrayList<Plant> plants;
     PlantsAdapter adapter;
@@ -35,6 +38,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        final String dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/picFolder/";
+        File newdir = new File(dir);
+        newdir.mkdirs();
 
         getPrefs();
         if (plants == null) plants = new ArrayList<>();
@@ -80,7 +87,11 @@ public class MainActivity extends AppCompatActivity {
                 plants.set(position, p);
                 adapter.notifyItemChanged(position);
             } else {
-                plants.remove(position);
+                if (plants.get(position).getPic() != null) {
+                    File file = new File(plants.get(position).getPic());
+                    file.delete();
+                }
+                    plants.remove(position);
                 adapter.notifyDataSetChanged();
             }
         }

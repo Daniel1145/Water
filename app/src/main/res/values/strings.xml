@@ -3,7 +3,8 @@
     <string name="species_name">Species Name</string>
     <string name="plant_name">Plant Name</string>
     <string name="watering_schedule">Watering Schedule</string>
-    <string name="done">Done</string>
     <string name="delete">delete</string>
     <string name="needwater">NEEDS WATER</string>
+    <string name="done">done</string>
+    <string name="capture">Capture</string>
 </resources>

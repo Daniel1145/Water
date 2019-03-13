@@ -3,11 +3,13 @@ package com.example.water;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.io.File;
 import java.util.ArrayList;
 
 public class Plant implements Parcelable {
     private String mName;
     private String mSpecies;
+    private String pic;
     private int mWaterSchedule;
     private int daysUntilWater;
 
@@ -18,27 +20,24 @@ public class Plant implements Parcelable {
         daysUntilWater = waterSchedule;
     }
 
-    String getName() {
-        return mName;
-    }
+    String getName() {return mName;}
 
     String getSpecies() {return mSpecies;}
 
-    int getWaterSchedule(){
-        return mWaterSchedule;
-    }
+    int getWaterSchedule(){return mWaterSchedule;}
 
-    int getDaysUntilWater() { return daysUntilWater;}
+    int getDaysUntilWater() {return daysUntilWater;}
+
+    String getPic() {return pic;}
 
     public void setName(String name) {mName = name;}
 
     public void setDaysUntilWater(int days) {daysUntilWater = days;}
 
+    public void setPic(String file) {pic = file;}
 
     @Override
-    public int describeContents() {
-        return 0;
-    }
+    public int describeContents() {return 0;}
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
@@ -46,6 +45,7 @@ public class Plant implements Parcelable {
         dest.writeString(this.mSpecies);
         dest.writeInt(this.mWaterSchedule);
         dest.writeInt(this.daysUntilWater);
+        dest.writeString(this.pic);
     }
 
     protected Plant(Parcel in) {
@@ -53,6 +53,7 @@ public class Plant implements Parcelable {
         this.mSpecies = in.readString();
         this.mWaterSchedule = in.readInt();
         this.daysUntilWater = in.readInt();
+        this.pic = in.readString();
     }
 
     public static final Creator<Plant> CREATOR = new Creator<Plant>() {

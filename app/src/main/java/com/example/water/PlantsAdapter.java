@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.net.Uri;
 import android.os.CountDownTimer;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -13,7 +14,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+
 import java.util.ArrayList;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 import static java.lang.Math.ceil;
 
@@ -37,6 +42,7 @@ public class PlantsAdapter extends RecyclerView.Adapter<PlantsAdapter.ViewHolder
         TextView speciesTextView;
         Button messageButton;
         CountDownTimer myCounter;
+        CircleImageView picView;
 
         // We also create a constructor that accepts the entire item row
         // and does the view lookups to find each subview
@@ -48,6 +54,7 @@ public class PlantsAdapter extends RecyclerView.Adapter<PlantsAdapter.ViewHolder
             nameTextView = itemView.findViewById(R.id.plant_name);
             speciesTextView = itemView.findViewById(R.id.plant_species);
             messageButton = itemView.findViewById(R.id.message_button);
+            picView = itemView.findViewById(R.id.plant_pic);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -95,6 +102,13 @@ public class PlantsAdapter extends RecyclerView.Adapter<PlantsAdapter.ViewHolder
             speciesTextView.setText(plant.getSpecies());
             final Button button = viewHolder.messageButton;
             button.getBackground().clearColorFilter();
+            CircleImageView picView = viewHolder.picView;
+
+            if (plant.getPic() != null) {
+                Glide.with(context).load(Uri.parse(plant.getPic())).placeholder(R.drawable.ic_launcher_background).into(picView);
+            } else {
+                picView.setImageBitmap(null);
+            }
 
             String daysUntilWater = Integer.toString(plant.getDaysUntilWater());
             button.setText(daysUntilWater);
